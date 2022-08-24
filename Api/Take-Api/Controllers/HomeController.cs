@@ -2,7 +2,6 @@
 using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using Take_Api.Models;
@@ -25,11 +24,11 @@ namespace Take_Api.Controllers
                 Response.CacheControl = "no-cache";
                 Response.AppendHeader("Pragma", "no-cache");
                 Response.Cache.SetNoServerCaching();
-
                 Response.ContentType = "application/json";
 
                 var avatar = CarregarAvatar();
-                var repos = CarregarRepositorio();
+                var repos = CarregarRepositorios();
+
                 List<Repos> list = new List<Repos>();
 
                 foreach (var item in repos)
@@ -39,7 +38,7 @@ namespace Take_Api.Controllers
                         list.Add(item);
                     }
                 }
-                
+
                 Response response = new Response()
                 {
                     avatar = avatar.avatar_url,
@@ -48,11 +47,9 @@ namespace Take_Api.Controllers
 
                 var json = JsonConvert.SerializeObject(response, Formatting.Indented);
                 return Content(json);
-
-            }                       
+            }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -60,20 +57,18 @@ namespace Take_Api.Controllers
         private Avatar CarregarAvatar()
         {
             var client = new RestClient("https://api.github.com/users/takenet");
-            client.Timeout = -1;
-            var request = new RestRequest(Method.GET);
-            IRestResponse response = client.Execute(request);
-            Avatar repos = JsonConvert.DeserializeObject<Avatar>(response.Content);
+            var request = new RestRequest();
+            var response = client.Execute(request);
+            var repos = JsonConvert.DeserializeObject<Avatar>(response.Content);
             return repos;
         }
 
-        public List<Repos> CarregarRepositorio()
+        public List<Repos> CarregarRepositorios()
         {
             var client = new RestClient("https://api.github.com/orgs/takenet/repos");
-            client.Timeout = -1;
-            var request = new RestRequest(Method.GET);
-            IRestResponse response = client.Execute(request);
-            List<Repos> repos = JsonConvert.DeserializeObject<List<Repos>>(response.Content);
+            var request = new RestRequest();
+            var response = client.Execute(request);
+            var repos = JsonConvert.DeserializeObject<List<Repos>>(response.Content);
             return repos;
         }
     }
